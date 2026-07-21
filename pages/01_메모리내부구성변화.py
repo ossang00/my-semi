@@ -32,27 +32,29 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-st.subheader("품목별 증감률 변동성 비교 (표준편차)")
-vol = (
-    df[[
-        "메모리_D램_전년동월대비_증감률(퍼센트)",
-        "메모리_낸드_전년동월대비_증감률(퍼센트)",
-        "메모리_MCP_전년동월대비_증감률(퍼센트)",
-    ]]
-    .std()
-    .rename({
-        "메모리_D램_전년동월대비_증감률(퍼센트)": "D램",
-        "메모리_낸드_전년동월대비_증감률(퍼센트)": "낸드",
-        "메모리_MCP_전년동월대비_증감률(퍼센트)": "MCP",
-    })
+st.subheader("연도별 평균 비중 추이")
+yearly = (
+    df.assign(연도=df["년월"].dt.year)
+    .groupby("연도")[["D램_비중", "낸드_비중", "MCP_비중"]]
+    .mean()
     .round(1)
 )
-
-fig3 = go.Figure(
-    go.Bar(x=vol.index, y=vol.values, marker_color=["#2563eb", "#16a34a", "#f59e0b"], text=vol.values, textposition="outside")
+fig3 = go.Figure()
+for col, name, color in [
+    ("D램_비중", "D램", "#2563eb"),
+    ("낸드_비중", "낸드", "#16a34a"),
+    ("MCP_비중", "MCP", "#f59e0b"),
+]:
+    fig3.add_trace(go.Scatter(x=yearly.index, y=yearly[col], mode="lines+markers", name=name, line=dict(color=color)))
+fig3.update_layout(
+    height=380,
+    yaxis=dict(title="평균 비중(%)"),
+    xaxis=dict(title="연도", dtick=1),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    margin=dict(l=10, r=10, t=20, b=10),
 )
-fig3.update_layout(height=380, yaxis=dict(title="YoY 증감률 표준편차(%p)"), margin=dict(l=10, r=10, t=20, b=10))
 st.plotly_chart(fig3, use_container_width=True)
+st.caption("품목별 변동성·리스크(표준편차, 최대낙폭) 비교는 '변동성·리스크 분석' 페이지에서 확인하실 수 있습니다.")
 
 col1, col2, col3 = st.columns(3)
 recent = df.tail(12)
