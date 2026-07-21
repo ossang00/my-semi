@@ -15,6 +15,9 @@ SEGMENTS = {
     "시스템반도체": ("시스템_반도체(억불)", "시스템_반도체_전년동월대비_증감률(퍼센트)"),
     "개별소자": ("개별소자(억불)", "개별소자_전년동월대비_증감률(퍼센트)"),
     "디스플레이패널": ("디스플레이_패널(억불)", "디스플레이_패널_전년동월대비_증감률(퍼센트)"),
+    "D램": ("메모리_D램(억불)", "메모리_D램_전년동월대비_증감률(퍼센트)"),
+    "낸드": ("메모리_낸드(억불)", "메모리_낸드_전년동월대비_증감률(퍼센트)"),
+    "MCP": ("메모리_MCP(억불)", "메모리_MCP_전년동월대비_증감률(퍼센트)"),
 }
 
 
@@ -68,10 +71,13 @@ with col2:
 st.divider()
 
 st.subheader("품목별 수출액 추이 (MDD 확인용)")
+top_level = ["메모리", "시스템반도체", "개별소자", "디스플레이패널"]
 fig3 = go.Figure()
 colors = {"메모리": "#2563eb", "시스템반도체": "#dc2626", "개별소자": "#f59e0b", "디스플레이패널": "#16a34a"}
-for name, (value_col, _) in SEGMENTS.items():
+for name in top_level:
+    value_col, _ = SEGMENTS[name]
     fig3.add_trace(go.Scatter(x=df["년월"], y=df[value_col], mode="lines", name=name, line=dict(color=colors[name])))
+st.caption("D램/낸드/MCP는 메모리 내부 세부 품목이라 규모 차이가 커서 별도 그래프(위 표 기준)로만 비교했습니다.")
 fig3.update_layout(
     height=460,
     hovermode="x unified",
